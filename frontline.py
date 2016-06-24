@@ -1,14 +1,13 @@
 from chat import ChatBot
 from api import Api
 from question import Question
-import re
-import enchant
+from filters import Filter
+
 
 bot = ChatBot("stackoverflow.com").join("113461");
-bot.send("FrontLine started")
+api = Api("stackoverflow")
 
-dictionary = enchant.Dict("en_US")
-
+#Just for testing purposes, will be moved to seperate class
 def filterQuestions(results):
 	global bot
 	for x in results["items"]:
@@ -16,26 +15,19 @@ def filterQuestions(results):
 			
 		question = Question(x)
 		
-		for y in question.body:
-			if y.name == "p":
-				paragraph = 0
-				text = y.text.split(" ");
-				# print "Paragraph ("+str(len(text))+") [",
-				for word in text:
-					stripped = re.sub(r'\W+', '', word)
-					# print stripped,
-					if len(stripped) > 0 and dictionary.check(stripped):
-						englishWords += 1
-						paragraph+=1
-				# print "] ("+str(paragraph)+" of these are english words)"
-			# elif y.name == "pre":
-				# text = y.text.split("\n");
-				# print "Code Block ("+str(len(text) - 1)+" Lines)"
+		quality = Filter(question)
 		
-		if englishWords < 40:
-			bot.send("Potential low-quality question: ["+question.title+"]("+question.link+")")
+		quality.countWords()
+		quality.countLines()
+		
+		if quality.code == 0:
+			bot.send("[tag:low-quality] No code - ["+question.title+"]("+question.link+")")
+		elif quality.words < 5:
+			bot.send("[tag:low-quality] No words - ["+question.title+"]("+question.link+")")
+		elif quality.words < 40:
+			bot.send("[tag:low-quality] Score:"+str(quality.words)+" - ["+question.title+"]("+question.link+")")
 			
-api = Api("stackoverflow")
+bot.send("FrontLine started")
 api.questions(filterQuestions)
     
 

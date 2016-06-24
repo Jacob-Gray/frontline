@@ -2,6 +2,7 @@ import requests
 import threading
 import time
 
+
 class Api:
     def __init__(self, host, timer = 60):
         
@@ -25,9 +26,12 @@ class Api:
             
             apiUrl = api[0]+'&fromdate='+str(self.time)
             r = requests.get(apiUrl)
+            response = r.json()
             
-            print "Api call to " + apiUrl
+            print "Api call to " + apiUrl+" - "+str(response["quota_remaining"])+" of "+str(response["quota_max"])+" calls today"
             
             self.time = int(time.time())
-            api[1](r.json())
+            api[1](response)
+
+                
         threading.Timer(self.timer, self.call).start();
