@@ -1,4 +1,4 @@
-import private
+import private.login
 import ChatExchange.chatexchange.client
 import ChatExchange.chatexchange.events
 
