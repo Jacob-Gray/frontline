@@ -1,35 +1,28 @@
-import re
-import enchant
 import defineFilters as filters
 
-class Filter:
-	
-	def __init__(self, question):
-		self.question = question
-		self.score = 0
-		self.words = 0
-		self.code = 0
-		self.dictionary = enchant.Dict("en_US")
-		
-	def checkText(self):
-		opinion = ["is the best site","site is best"]
-    
-	def countWords(self):
-		for y in self.question.body:
-			
-			if(y.name in filters.textElements):
-			
-				text = y.text.split(" ");
-				for word in text:
-	
-					if len(word) > 0 and self.dictionary.check(word):
-						self.words += 1
+textElements = ["ul","p","h1","h2","h3","blockquote"]
+codeElements = ["pre", "code"]
 
-    
-	def countLines(self):
-		for y in self.question.body:
+class Filter:
+	def __init__(self, question):
+		self.imgCount = 0
+		self.score = 0
+		self.code = []
+		self.text = []
+		for el in question.body:
+			FilterElement(self, el)
 			
-			if(y.name in filters.codeElements):
-			
-				self.code += len(y.text.split("\n")) -1;
+	def calc(self):
+		for item in self.text:
+			self.score += item.get("words")
+		
+
+def FilterElement(self, el):
+	if el.name in textElements:
+		filters.FilterTextElement(self, el)
+	elif el.name in codeElements:
+		filters.FilterCodeElement(self, el)
+	elif el.name == "img": self.imgCount +=1
+		
+
     
